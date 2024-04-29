@@ -4,7 +4,43 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
-
+    <SeekBar
+        android:id="@+id/RangeX1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxHeight="5.0dp"
+        android:minHeight="5.0dp"
+        android:max="3024"
+        android:progress="1512" 
+        android:progressDrawable="@drawable/sb_bar"
+        android:thumb="@drawable/sb_thumb"/>
+    <TextView
+            android:id="@+id/tv_progress1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="center"
+            android:layout_below="@+id/RangeX1"
+            android:text="x1 = 1512/3024"/>
+    <SeekBar
+        android:id="@+id/RangeX2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxHeight="5.0dp"
+        android:minHeight="5.0dp"
+        android:max="3024"
+        android:progress="1512"  
+        android:layout_below="@+id/tv_progress1"
+        android:progressDrawable="@drawable/sb_bar"
+        android:thumb="@drawable/sb_thumb"/>
+    <TextView
+            android:id="@+id/tv_progress2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="center"
+            android:layout_below="@+id/RangeX2"
+            android:text="x2 = 1512/3024"/>   
     <ImageView
         android:id="@+id/Picture"
         android:layout_width="fill_parent"

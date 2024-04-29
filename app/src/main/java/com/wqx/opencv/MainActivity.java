@@ -17,6 +17,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.Toast;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
@@ -41,14 +43,20 @@ public class MainActivity extends AppCompatActivity {
     private final static int HOUGH = 2;
     private final static int HOUGH2 = 3;
     private final static String TAG = "infor";
-    private static float RangeX1 = 0;
-    private static float Rangex2 = 0;
+    private static int Xmax = 3024;
+    private static int Ymax = 4032;
+    public static float RangeX1 = Xmax/2;
+    public static float RangeX2 = Xmax/2;
 
     private Mat src = null;//定义一个Mat型类用于临时存放选择的图片
     private Mat image = null;//用于存放得到的图片
     private Mat des = null;//用于临时存放Mat型类的图片
     private Bitmap resultBitmap;
     private ImageView pictureView = null;//定义一个ImageView类视图用于存放选择的图片
+    private SeekBar mSeekBar1;
+    private SeekBar mSeekBar2;
+    private TextView mTextView1;
+    private TextView mTextView2;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -70,7 +78,50 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         pictureView = (ImageView) findViewById(R.id.Picture);
+        mSeekBar1=findViewById(R.id.RangeX1);
+        mSeekBar2=findViewById(R.id.RangeX2);
+        mTextView1=findViewById(R.id.tv_progress1);
+        mTextView2=findViewById(R.id.tv_progress2);
+        mSeekBar1.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override  //当滑块进度改变时，会执行该方法下的代码
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                RangeX1 = i;//设置当前的透明度
+                mTextView1.setText("x1 = " +i+"/"+Xmax);
+            }
 
+            @Override  //当开始滑动滑块时，会执行该方法下的代码
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                //resultBitmap = houghLine(image);
+                //Toast.makeText(MainActivity.this,"我seekbar开始滑动了",Toast.LENGTH_SHORT).show();
+            }
+
+            @Override   //当结束滑动滑块时，会执行该方法下的代码
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                resultBitmap = houghLine(image);
+                pictureView.setImageBitmap(resultBitmap);
+                Toast.makeText(MainActivity.this,"图片刷新",Toast.LENGTH_SHORT).show();
+            }
+        });
+        mSeekBar2.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override  //当滑块进度改变时，会执行该方法下的代码
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                RangeX2 = i;//设置当前的透明度
+                mTextView2.setText("x2 = " +i+"/"+Xmax);
+            }
+
+            @Override  //当开始滑动滑块时，会执行该方法下的代码
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                //resultBitmap = houghLine(image);
+                //Toast.makeText(MainActivity.this,"我seekbar开始滑动了",Toast.LENGTH_SHORT).show();
+            }
+
+            @Override   //当结束滑动滑块时，会执行该方法下的代码
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                resultBitmap = houghLine(image);
+                pictureView.setImageBitmap(resultBitmap);
+                Toast.makeText(MainActivity.this,"图片刷新",Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     /*启动openCV*/
@@ -173,6 +224,7 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this, "图片选取成功", Toast.LENGTH_SHORT).show();
                         resultBitmap = houghLine(image);
                         pictureView.setImageBitmap(resultBitmap);
+                        Log.d("lcq","pictureView = " + pictureView);
 
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
@@ -284,6 +336,8 @@ public class MainActivity extends AppCompatActivity {
         maxLineGap：允许将同一行点与点之间连接起来的最大的距离，默认为0
         */
         Imgproc.HoughLinesP(cannyEdges, lines, 1, Math.PI / 180, 100, 0, 1000);
+        Imgproc.line(origination, new Point(RangeX1,0), new Point(RangeX1,Ymax), new Scalar(0, 0, 255),20);// thickness  画线的宽度
+        Imgproc.line(origination, new Point(RangeX2,0), new Point(RangeX2,Ymax), new Scalar(0, 0, 255),20);// thickness  画线的宽度
         Log.d("lcq","lines.row()1 = " + lines.rows());
         Mat houghLines = new Mat();
         houghLines.create(cannyEdges.rows(), cannyEdges.cols(), CvType.CV_8UC3);//背景色   CvType.CV_8UC4 白底，CV_8UC1 黑底，CV_8UC3 直线的颜色才起作用
@@ -293,7 +347,10 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < lines.rows(); i++) {
             double[] points = lines.get(i, 0);
             Log.d("lcq","points = " + points);
-            if (null != points && (points[0]>1000 && points[0]<2000) && (points[2]>1000 && points[2]<2000)) {
+            Log.d("lcq","RangeX1 = " + RangeX1);
+            Log.d("lcq","RangeX2 = " + RangeX2);
+            if ((points[0]>RangeX1 && points[0]<RangeX2) && (points[2]>RangeX1 && points[2]<RangeX2) ||
+                    (points[0]>RangeX2 && points[0]<RangeX1) && (points[2]>RangeX2 && points[2]<RangeX1)) {
                 double x1, y1, x2, y2;
                 x1 = points[0];
                 y1 = points[1];
