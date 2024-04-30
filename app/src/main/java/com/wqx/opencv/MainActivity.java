@@ -122,6 +122,9 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this,"图片刷新",Toast.LENGTH_SHORT).show();
             }
         });
+        Intent pictureSelectIntent = new Intent(Intent.ACTION_PICK);
+            pictureSelectIntent.setType("image/");
+            startActivityForResult(pictureSelectIntent, HOUGH);
     }
 
     /*启动openCV*/
@@ -139,53 +142,53 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
+    // @Override
+    // public boolean onCreateOptionsMenu(Menu menu) {
+    //     // Inflate the menu; this adds items to the action bar if it is present.
+    //     getMenuInflater().inflate(R.menu.menu_main, menu);
+    //     return true;
+    // }
 
-    /*在这里选取要进行的操作*/
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+    // /*在这里选取要进行的操作*/
+    // @Override
+    // public boolean onOptionsItemSelected(MenuItem item) {
+    //     // Handle action bar item clicks here. The action bar will
+    //     // automatically handle clicks on the Home/Up button, so long
+    //     // as you specify a parent activity in AndroidManifest.xml.
+    //     int id = item.getItemId();
 
-        //对应Canny边缘检测的按钮
-        if (id == R.id.Canny) {
-            /*下面对通过Intent对象得到选择图片的Activity，最后返回图片的信息，得到图片*/
-            Intent pictureSelectIntent = new Intent(Intent.ACTION_PICK);//设置Action
-            pictureSelectIntent.setType("image/");//设置数据的类型
-            startActivityForResult(pictureSelectIntent, CANNY);
-            return true;
-        }
+    //     //对应Canny边缘检测的按钮
+    //     if (id == R.id.Canny) {
+    //         /*下面对通过Intent对象得到选择图片的Activity，最后返回图片的信息，得到图片*/
+    //         Intent pictureSelectIntent = new Intent(Intent.ACTION_PICK);//设置Action
+    //         pictureSelectIntent.setType("image/");//设置数据的类型
+    //         startActivityForResult(pictureSelectIntent, CANNY);
+    //         return true;
+    //     }
 
-        //对应Harris边缘检测的按钮
-        if (R.id.Harris == id) {
-            Intent pictureSelectIntent = new Intent(Intent.ACTION_PICK);
-            pictureSelectIntent.setType("image/");
-            startActivityForResult(pictureSelectIntent, HARRIS);
-            return true;
-        }
-        //对应Hough的直线检测按钮
-        if (R.id.Hough == id) {
-            Intent pictureSelectIntent = new Intent(Intent.ACTION_PICK);
-            pictureSelectIntent.setType("image/");
-            startActivityForResult(pictureSelectIntent, HOUGH);
-            return true;
-        }
-        //对应Hough的直线检测按钮
-        if (R.id.Hough2 == id) {
-            Intent pictureSelectIntent = new Intent(Intent.ACTION_PICK);
-            pictureSelectIntent.setType("image/");
-            startActivityForResult(pictureSelectIntent, HOUGH2);
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
+    //     //对应Harris边缘检测的按钮
+    //     if (R.id.Harris == id) {
+    //         Intent pictureSelectIntent = new Intent(Intent.ACTION_PICK);
+    //         pictureSelectIntent.setType("image/");
+    //         startActivityForResult(pictureSelectIntent, HARRIS);
+    //         return true;
+    //     }
+    //     //对应Hough的直线检测按钮
+    //     if (R.id.Hough == id) {
+    //         Intent pictureSelectIntent = new Intent(Intent.ACTION_PICK);
+    //         pictureSelectIntent.setType("image/");
+    //         startActivityForResult(pictureSelectIntent, HOUGH);
+    //         return true;
+    //     }
+    //     //对应Hough的直线检测按钮
+    //     if (R.id.Hough2 == id) {
+    //         Intent pictureSelectIntent = new Intent(Intent.ACTION_PICK);
+    //         pictureSelectIntent.setType("image/");
+    //         startActivityForResult(pictureSelectIntent, HOUGH2);
+    //         return true;
+    //     }
+    //     return super.onOptionsItemSelected(item);
+    // }
 
 
     /*调用StartActivityForResult后的回调函数
@@ -318,7 +321,7 @@ public class MainActivity extends AppCompatActivity {
         /*通过Canny得到边缘图*/
         Imgproc.cvtColor(origination, grayMat, Imgproc.COLOR_BGR2GRAY);//灰度图片
         //Imgproc.Canny(grayMat, cannyEdges, 50, 300);
-        Imgproc.Canny(grayMat, cannyEdges, 100, 150, 3);
+        Imgproc.Canny(grayMat, cannyEdges,50,120);
         //Mat cannyEdges = new Mat(resultHough.getHeight(),resultHough.getWidth(),CvType.CV_8UC1);
         /*获得直线图*/
         //Imgproc.HoughLinesP(cannyEdges, lines, 1, Math.PI / 180, 10, 0, 50);
@@ -346,21 +349,36 @@ public class MainActivity extends AppCompatActivity {
         /*在图线的上绘制直线*/
         for (int i = 0; i < lines.rows(); i++) {
             double[] points = lines.get(i, 0);
+            int ExtendLength = 1000;
+            double x1 = points[0];
+            double y1 = points[1];
+            double x2 = points[2];
+            double y2 = points[3];
+            boolean Area = (x1>RangeX1 && x1<RangeX2) && (x2>RangeX1 && x2<RangeX2) ||
+                    (x1>RangeX2 && x1<RangeX1) && (x2>RangeX2 && x2<RangeX1);
+            if(Area){
+            Point pt1 = new Point(x1, y1);
+            Point pt2 = new Point(x2, y2);
+            double dx = Math.abs(pt1.x - pt2.x);
+            double dy = Math.abs(pt1.y - pt2.y);
+            double length = Math.sqrt(dx * dx + dy * dy);
+            boolean RequestLength = length > 200;
+            Log.d("lcq","tan1 = " + (y2-y1)/(x2-x1));
             Log.d("lcq","points = " + points);
             Log.d("lcq","RangeX1 = " + RangeX1);
             Log.d("lcq","RangeX2 = " + RangeX2);
-            if ((points[0]>RangeX1 && points[0]<RangeX2) && (points[2]>RangeX1 && points[2]<RangeX2) ||
-                    (points[0]>RangeX2 && points[0]<RangeX1) && (points[2]>RangeX2 && points[2]<RangeX1)) {
-                double x1, y1, x2, y2;
-                x1 = points[0];
-                y1 = points[1];
-                x2 = points[2];
-                y2 = points[3];
-                Point pt1 = new Point(x1, y1);
-                Point pt2 = new Point(x2, y2);
+                if (RequestLength) {
+                double ExtendLengthX = pt2.x + (dx / length) * ExtendLength;
+                double ExtendLengthY = pt2.y + (dy / length) * ExtendLength;
+                Log.d("lcq","ExtendLengthX = " + ExtendLengthX);
+                Log.d("lcq","ExtendLengthY = " + ExtendLengthY);
+                Log.d("lcq","tan2 = " + (ExtendLengthY-y1)/(ExtendLengthX-x1));
+                Point ExtendPoint = new Point(ExtendLengthX, ExtendLengthY);
                 /*在一幅图像上绘制直线*/
-                Imgproc.line(origination, pt1, pt2, new Scalar(0, 255, 0),1);// thickness  画线的宽度
+//               Imgproc.line(origination, pt1, pt2, new Scalar(0, 255, 0),3);// thickness  画线的宽度
+                 Imgproc.line(origination, pt1, ExtendPoint, new Scalar(0, 255, 0),3);// thickness  画线的宽度
 //                Imgproc.line(houghLines, pt1, pt2, new Scalar(255, 255, 0), 3);// thickness  画线的宽度
+                }
             }
         }
         resultHough = Bitmap.createBitmap(src.cols(), src.rows(), Bitmap.Config.ARGB_8888);
