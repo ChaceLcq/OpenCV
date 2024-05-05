@@ -35,6 +35,7 @@ import org.opencv.imgproc.Imgproc;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Random;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -47,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private static int Ymax = 4032;
     public static float RangeX1 = Xmax/2;
     public static float RangeX2 = Xmax/2;
+    ArrayList<ArrayList<Double>> point = new ArrayList<ArrayList<Double>>();
 
     private Mat src = null;//定义一个Mat型类用于临时存放选择的图片
     private Mat image = null;//用于存放得到的图片
@@ -347,7 +349,16 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d("lcq","lines.row() = " + lines.rows());
         for (int i = 0; i < lines.rows(); i++) {
-            double[] points = lines.get(i, 0);
+            ArrayList<Double> p = new ArrayList<Double>();
+
+            double[] points = lines.get(i,0);
+            /*直线斜率*/
+            double theta = (points[3]-points[1])/(points[2]-points[0]);
+            for (double j : points) {
+                p.add(j);
+            }
+            p.add(theta);
+            point.add(p);
             /*延长线两端延伸距离*/
             int ExtendLength = 5000;
             double x1 = points[0];
@@ -370,6 +381,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d("lcq","RangeX1 = " + RangeX1);
             Log.d("lcq","RangeX2 = " + RangeX2);
                 if (RequestLength) {
+                    Log.d("lcq","point = " + point);
                 /*对检测点构成的直线进行两端无限延伸*/
                 double ExtendLengthX1 = pt2.x + (dx / length) * ExtendLength;
                 double ExtendLengthY1 = pt2.y + (dy / length) * ExtendLength;
