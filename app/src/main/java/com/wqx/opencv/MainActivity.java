@@ -1,5 +1,7 @@
 package com.wqx.opencv;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
 
 /*
@@ -46,8 +48,8 @@ public class MainActivity extends AppCompatActivity {
     private final static String TAG = "infor";
     private static int Xmax = 3024;
     private static int Ymax = 4032;
-    public static float RangeX1 = Xmax/2;
-    public static float RangeX2 = Xmax/2;
+    public static float RangeX1 = Xmax / 2;
+    public static float RangeX2 = Xmax / 2;
     ArrayList<ArrayList<Double>> point = new ArrayList<ArrayList<Double>>();
 
     private Mat src = null;//定义一个Mat型类用于临时存放选择的图片
@@ -80,15 +82,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         pictureView = (ImageView) findViewById(R.id.Picture);
-        mSeekBar1=findViewById(R.id.RangeX1);
-        mSeekBar2=findViewById(R.id.RangeX2);
-        mTextView1=findViewById(R.id.tv_progress1);
-        mTextView2=findViewById(R.id.tv_progress2);
+        mSeekBar1 = findViewById(R.id.RangeX1);
+        mSeekBar2 = findViewById(R.id.RangeX2);
+        mTextView1 = findViewById(R.id.tv_progress1);
+        mTextView2 = findViewById(R.id.tv_progress2);
         mSeekBar1.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override  //当滑块进度改变时，会执行该方法下的代码
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 RangeX1 = i;//设置当前的透明度
-                mTextView1.setText("x1 = " +i+"/"+Xmax);
+                mTextView1.setText("x1 = " + i + "/" + Xmax);
             }
 
             @Override  //当开始滑动滑块时，会执行该方法下的代码
@@ -101,14 +103,14 @@ public class MainActivity extends AppCompatActivity {
             public void onStopTrackingTouch(SeekBar seekBar) {
                 resultBitmap = houghLine(image);
                 pictureView.setImageBitmap(resultBitmap);
-                Toast.makeText(MainActivity.this,"图片刷新",Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "图片刷新", Toast.LENGTH_SHORT).show();
             }
         });
         mSeekBar2.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override  //当滑块进度改变时，会执行该方法下的代码
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 RangeX2 = i;//设置当前的透明度
-                mTextView2.setText("x2 = " +i+"/"+Xmax);
+                mTextView2.setText("x2 = " + i + "/" + Xmax);
             }
 
             @Override  //当开始滑动滑块时，会执行该方法下的代码
@@ -121,12 +123,12 @@ public class MainActivity extends AppCompatActivity {
             public void onStopTrackingTouch(SeekBar seekBar) {
                 resultBitmap = houghLine(image);
                 pictureView.setImageBitmap(resultBitmap);
-                Toast.makeText(MainActivity.this,"图片刷新",Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "图片刷新", Toast.LENGTH_SHORT).show();
             }
         });
-            Intent pictureSelectIntent = new Intent(Intent.ACTION_PICK);
-            pictureSelectIntent.setType("image/");
-            startActivityForResult(pictureSelectIntent, HOUGH);
+        Intent pictureSelectIntent = new Intent(Intent.ACTION_PICK);
+        pictureSelectIntent.setType("image/");
+        startActivityForResult(pictureSelectIntent, HOUGH);
     }
 
     /*启动openCV*/
@@ -144,14 +146,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-     @Override
-     public boolean onCreateOptionsMenu(Menu menu) {
-         // Inflate the menu; this adds items to the action bar if it is present.
-         getMenuInflater().inflate(R.menu.menu_main, menu);
-         return true;
-     }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
 
-     /*在这里选取要进行的操作*/
+    /*在这里选取要进行的操作*/
 //     @Override
 //     public boolean onOptionsItemSelected(MenuItem item) {
 //         // Handle action bar item clicks here. The action bar will
@@ -229,7 +231,7 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this, "图片选取成功", Toast.LENGTH_SHORT).show();
                         resultBitmap = houghLine(image);
                         pictureView.setImageBitmap(resultBitmap);
-                        Log.d("lcq","pictureView = " + pictureView);
+                        Log.d("lcq", "pictureView = " + pictureView);
 
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
@@ -323,7 +325,7 @@ public class MainActivity extends AppCompatActivity {
         /*通过Canny得到边缘图*/
         Imgproc.cvtColor(origination, grayMat, Imgproc.COLOR_BGR2GRAY);//灰度图片
         //Imgproc.Canny(grayMat, cannyEdges, 50, 300);
-        Imgproc.Canny(grayMat, cannyEdges,100,200);
+        Imgproc.Canny(grayMat, cannyEdges, 100, 200);
         //Mat cannyEdges = new Mat(resultHough.getHeight(),resultHough.getWidth(),CvType.CV_8UC1);
         /*获得直线图*/
         //Imgproc.HoughLinesP(cannyEdges, lines, 1, Math.PI / 180, 10, 0, 50);
@@ -340,20 +342,20 @@ public class MainActivity extends AppCompatActivity {
         minLineLength：最低线段的长度，默认为0
         maxLineGap：允许将同一行点与点之间连接起来的最大的距离，默认为0
         */
-        Imgproc.HoughLinesP(cannyEdges, lines, 1, Math.PI / 180, 100, 0, 1000);
-        Imgproc.line(origination, new Point(RangeX1,0), new Point(RangeX1,Ymax), new Scalar(0, 0, 255),20);// thickness  画线的宽度
-        Imgproc.line(origination, new Point(RangeX2,0), new Point(RangeX2,Ymax), new Scalar(0, 0, 255),20);// thickness  画线的宽度
-        Log.d("lcq","lines.row()1 = " + lines.rows());
+        Imgproc.HoughLinesP(cannyEdges, lines, 1, Math.PI / 180, 250, 100, 1000);
+        Imgproc.line(origination, new Point(RangeX1, 0), new Point(RangeX1, Ymax), new Scalar(0, 0, 255), 20);// thickness  画线的宽度
+        Imgproc.line(origination, new Point(RangeX2, 0), new Point(RangeX2, Ymax), new Scalar(0, 0, 255), 20);// thickness  画线的宽度
+        Log.d("lcq", "lines.row()1 = " + lines.rows());
         Mat houghLines = new Mat();
         houghLines.create(cannyEdges.rows(), cannyEdges.cols(), CvType.CV_8UC3);//背景色   CvType.CV_8UC4 白底，CV_8UC1 黑底，CV_8UC3 直线的颜色才起作用
 
-        Log.d("lcq","lines.row() = " + lines.rows());
+        Log.d("lcq", "lines.row() = " + lines.rows());
         for (int i = 0; i < lines.rows(); i++) {
             ArrayList<Double> p = new ArrayList<Double>();
 
-            double[] points = lines.get(i,0);
+            double[] points = lines.get(i, 0);
             /*直线斜率*/
-            double theta = (points[3]-points[1])/(points[2]-points[0]);
+            double theta = (points[3] - points[1]) / (points[2] - points[0]);
             for (double j : points) {
                 p.add(j);
             }
@@ -366,39 +368,35 @@ public class MainActivity extends AppCompatActivity {
             double x2 = points[2];
             double y2 = points[3];
             /*限定检测区域*/
-            boolean Area = (x1>RangeX1 && x1<RangeX2) && (x2>RangeX1 && x2<RangeX2) ||
-                    (x1>RangeX2 && x1<RangeX1) && (x2>RangeX2 && x2<RangeX1);
-            if(Area){
-            Point pt1 = new Point(x1, y1);
-            Point pt2 = new Point(x2, y2);
-            double dx = pt1.x - pt2.x;
-            double dy = pt1.y - pt2.y;
-            double length = Math.sqrt(dx * dx + dy * dy);
-            /*最短检测长度*/
-            boolean RequestLength = length>100;
-            Log.d("lcq","tan1 = " + (y2-y1)/(x2-x1));
-            Log.d("lcq","points = " + points);
-            Log.d("lcq","RangeX1 = " + RangeX1);
-            Log.d("lcq","RangeX2 = " + RangeX2);
-                if (RequestLength) {
-                    Log.d("lcq","point = " + point);
+            boolean Area = (x1 > RangeX1 && x1 < RangeX2) && (x2 > RangeX1 && x2 < RangeX2) ||
+                    (x1 > RangeX2 && x1 < RangeX1) && (x2 > RangeX2 && x2 < RangeX1);
+            if (Area) {
+                Point pt1 = new Point(x1, y1);
+                Point pt2 = new Point(x2, y2);
+                double dx = pt1.x - pt2.x;
+                double dy = pt1.y - pt2.y;
+                double length = Math.sqrt(dx * dx + dy * dy);
+                Log.d("lcq", "tan1 = " + (y2 - y1) / (x2 - x1));
+                Log.d("lcq", "points = " + points);
+                Log.d("lcq", "RangeX1 = " + RangeX1);
+                Log.d("lcq", "RangeX2 = " + RangeX2);
+                Log.d("lcq", "point = " + point);
                 /*对检测点构成的直线进行两端无限延伸*/
                 double ExtendLengthX1 = pt2.x + (dx / length) * ExtendLength;
                 double ExtendLengthY1 = pt2.y + (dy / length) * ExtendLength;
                 double ExtendLengthX2 = pt1.x - (dx / length) * ExtendLength;
                 double ExtendLengthY2 = pt1.y - (dy / length) * ExtendLength;
-                Log.d("lcq","ExtendLengthX1 = " + ExtendLengthX1);
-                Log.d("lcq","ExtendLengthY1 = " + ExtendLengthY1);
-                Log.d("lcq","ExtendLengthX2 = " + ExtendLengthX2);
-                Log.d("lcq","ExtendLengthY2 = " + ExtendLengthY2);
-                Log.d("lcq","tan2 = " + (ExtendLengthY2-ExtendLengthY1)/(ExtendLengthX2-ExtendLengthX1));
+                Log.d("lcq", "ExtendLengthX1 = " + ExtendLengthX1);
+                Log.d("lcq", "ExtendLengthY1 = " + ExtendLengthY1);
+                Log.d("lcq", "ExtendLengthX2 = " + ExtendLengthX2);
+                Log.d("lcq", "ExtendLengthY2 = " + ExtendLengthY2);
+                Log.d("lcq", "tan2 = " + (ExtendLengthY2 - ExtendLengthY1) / (ExtendLengthX2 - ExtendLengthX1));
                 Point ExtendPoint1 = new Point(ExtendLengthX1, ExtendLengthY1);
                 Point ExtendPoint2 = new Point(ExtendLengthX2, ExtendLengthY2);
                 /*在一幅图像上绘制直线*/
                 //Imgproc.line(origination, pt1, pt2, new Scalar(0, 255, 0),3);// thickness  画线的宽度
-                Imgproc.line(origination, ExtendPoint1, ExtendPoint2, new Scalar(0, 255, 0),3);// thickness  画线的宽度
+                Imgproc.line(origination, ExtendPoint1, ExtendPoint2, new Scalar(0, 255, 0), 3);// thickness  画线的宽度
                 //Imgproc.line(houghLines, pt1, pt2, new Scalar(255, 255, 0), 3);// thickness  画线的宽度
-                }
             }
         }
         resultHough = Bitmap.createBitmap(src.cols(), src.rows(), Bitmap.Config.ARGB_8888);
